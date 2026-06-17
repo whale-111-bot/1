@@ -1,123 +1,177 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Management</title>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <title>Разработка компонентов - Users</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
-        .app { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #333; margin-bottom: 30px; }
-        .user-form { display: flex; gap: 10px; margin-bottom: 30px; align-items: center; }
-        .user-form input { padding: 10px; border: 1px solid #ddd; border-radius: 4px; flex: 1; font-size: 14px; }
-        .user-form input:focus { outline: none; border-color: #dc3545; }
-        .btn-add { background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; }
-        .btn-add:hover { background: #c82333; }
-        .user-list h2 { margin-bottom: 15px; color: #333; font-size: 28px; font-weight: normal; }
-        table { width: 100%; border-collapse: collapse; }
-        thead { background: #f8f9fa; }
-        th { text-align: left; padding: 12px; font-weight: bold; color: #333; }
-        td { padding: 12px; border-bottom: 1px solid #eee; }
-        tr:hover { background: #f8f9fa; }
-        .btn-delete { background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; }
-        .btn-delete:hover { background: #c82333; }
+        * {
+            font-family: Arial, sans-serif;
+            box-sizing: border-box;
+        }
+        body {
+            padding: 30px;
+            max-width: 950px;
+            margin: 0 auto;
+        }
+        .form-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+        .input-wrap {
+            text-align: center;
+        }
+        .input-wrap label {
+            display: block;
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+        .input-wrap input {
+            padding: 10px;
+            font-size: 18px;
+            border: 1px solid #999;
+        }
+        #inp-fn { width: 180px; }
+        #inp-ln { width: 180px; }
+        #inp-email { width: 240px; }
+        .btn-add {
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            font-size: 18px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        hr {
+            margin: 20px 0;
+        }
+        h2 {
+            font-size: 36px;
+            margin: 15px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 20px;
+        }
+        th, td {
+            text-align: left;
+            padding: 12px;
+        }
+        tr:nth-child(odd) {
+            background-color: #f1f1f1;
+        }
+        .btn-del {
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <div id="root"></div>
-    
-    <script type="text/babel">
-        const { useState } = React;
+    <!-- 添加用户表单 -->
+    <div class="form-row">
+        <button class="btn-add" id="addBtn">Add User</button>
+        <div class="input-wrap">
+            <label>FirstName</label>
+            <input type="text" id="inp-fn">
+        </div>
+        <div class="input-wrap">
+            <label>LastName</label>
+            <input type="text" id="inp-ln">
+        </div>
+        <div class="input-wrap">
+            <label>Email</label>
+            <input type="email" id="inp-email">
+        </div>
+    </div>
+    <hr>
 
-        function UserForm({ onAddUser }) {
-            const [firstName, setFirstName] = useState('');
-            const [lastName, setLastName] = useState('');
-            const [email, setEmail] = useState('');
+    <!-- 用户列表 -->
+    <h2>Users</h2>
+    <table id="userTable">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>FirstName</th>
+                <th>LastName</th>
+                <th>Email</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <!-- JS动态渲染数据 -->
+        </tbody>
+    </table>
 
-            const handleSubmit = (e) => {
-                e.preventDefault();
-                if (!firstName || !lastName || !email) {
-                    alert('Please fill in all fields');
-                    return;
-                }
-                onAddUser({ firstName, lastName, email });
-                setFirstName('');
-                setLastName('');
-                setEmail('');
-            };
+    <script>
+        // 初始数据
+        let userList = [
+            { id: 1, firstName: 'John', lastName: 'Doe', email: 'john@gmail.com' },
+            { id: 2, firstName: 'Dhiraj', lastName: 'Ray', email: 'only2dhir@gmail.com' }
+        ];
 
-            return (
-                <form className="user-form" onSubmit={handleSubmit}>
-                    <button type="submit" className="btn-add">Add User</button>
-                    <input type="text" placeholder="FirstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
-                    <input type="text" placeholder="LastName" value={lastName} onChange={(e) => setLastName(e.target.value)} />
-                    <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                </form>
-            );
+        const inpFn = document.getElementById('inp-fn');
+        const inpLn = document.getElementById('inp-ln');
+        const inpEmail = document.getElementById('inp-email');
+        const addBtn = document.getElementById('addBtn');
+        const tableBody = document.getElementById('tableBody');
+
+        // 渲染表格
+        function renderList() {
+            tableBody.innerHTML = '';
+            userList.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${user.id}</td>
+                    <td>${user.firstName}</td>
+                    <td>${user.lastName}</td>
+                    <td>${user.email}</td>
+                    <td><button class="btn-del" onclick="deleteUser(${user.id})">Delete</button></td>
+                `;
+                tableBody.appendChild(tr);
+            })
         }
 
-        function UserList({ users, onDeleteUser }) {
-            return (
-                <div className="user-list">
-                    <h2>Users</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Id</th>
-                                <th>FirstName</th>
-                                <th>LastName</th>
-                                <th>Email</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {users.map(user => (
-                                <tr key={user.id}>
-                                    <td>{user.id}</td>
-                                    <td>{user.firstName}</td>
-                                    <td>{user.lastName}</td>
-                                    <td>{user.email}</td>
-                                    <td>
-                                        <button className="btn-delete" onClick={() => onDeleteUser(user.id)}>Delete</button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            );
+        // 删除用户
+        window.deleteUser = function(delId) {
+            userList = userList.filter(u => u.id !== delId);
+            renderList();
         }
 
-        function App() {
-            const [users, setUsers] = useState([
-                { id: 1, firstName: 'John', lastName: 'Doe', email: 'john@gmail.com' },
-                { id: 2, firstName: 'Dhiraj', lastName: 'Ray', email: 'only2dhir@gmail.com' }
-            ]);
+        // 添加用户
+        addBtn.addEventListener('click', () => {
+            const fn = inpFn.value.trim();
+            const ln = inpLn.value.trim();
+            const email = inpEmail.value.trim();
+            if (!fn || !ln || !email) {
+                alert('Заполните все поля!');
+                return;
+            }
+            // 生成新ID
+            const newId = userList.length ? Math.max(...userList.map(u=>u.id)) + 1 : 1;
+            userList.push({
+                id: newId,
+                firstName: fn,
+                lastName: ln,
+                email: email
+            })
+            // 清空输入框
+            inpFn.value = '';
+            inpLn.value = '';
+            inpEmail.value = '';
+            renderList();
+        })
 
-            const addUser = (newUser) => {
-                const id = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1;
-                setUsers([...users, { ...newUser, id }]);
-            };
-
-            const deleteUser = (id) => {
-                setUsers(users.filter(user => user.id !== id));
-            };
-
-            return (
-                <div className="app">
-                    <h1>User Management</h1>
-                    <UserForm onAddUser={addUser} />
-                    <UserList users={users} onDeleteUser={deleteUser} />
-                </div>
-            );
-        }
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        // 页面初始化渲染
+        renderList();
     </script>
 </body>
 </html>
