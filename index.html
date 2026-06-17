@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+        .app { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; margin-bottom: 30px; }
+        .user-form { display: flex; gap: 10px; margin-bottom: 30px; align-items: center; }
+        .user-form input { padding: 10px; border: 1px solid #ddd; border-radius: 4px; flex: 1; font-size: 14px; }
+        .user-form input:focus { outline: none; border-color: #dc3545; }
+        .btn-add { background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; }
+        .btn-add:hover { background: #c82333; }
+        .user-list h2 { margin-bottom: 15px; color: #333; font-size: 28px; font-weight: normal; }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: #f8f9fa; }
+        th { text-align: left; padding: 12px; font-weight: bold; color: #333; }
+        td { padding: 12px; border-bottom: 1px solid #eee; }
+        tr:hover { background: #f8f9fa; }
+        .btn-delete { background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        .btn-delete:hover { background: #c82333; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState } = React;
+
+        function UserForm({ onAddUser }) {
+            const [firstName, setFirstName] = useState('');
+            const [lastName, setLastName] = useState('');
+            const [email, setEmail] = useState('');
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if (!firstName || !lastName || !email) {
+                    alert('Please fill in all fields');
+                    return;
+                }
+                onAddUser({ firstName, lastName, email });
+                setFirstName('');
+                setLastName('');
+                setEmail('');
+            };
+
+            return (
+                <form className="user-form" onSubmit={handleSubmit}>
+                    <button type="submit" className="btn-add">Add User</button>
+                    <input type="text" placeholder="FirstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+                    <input type="text" placeholder="LastName" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+                    <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                </form>
+            );
+        }
+
+        function UserList({ users, onDeleteUser }) {
+            return (
+                <div className="user-list">
+                    <h2>Users</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>FirstName</th>
+                                <th>LastName</th>
+                                <th>Email</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {users.map(user => (
+                                <tr key={user.id}>
+                                    <td>{user.id}</td>
+                                    <td>{user.firstName}</td>
+                                    <td>{user.lastName}</td>
+                                    <td>{user.email}</td>
+                                    <td>
+                                        <button className="btn-delete" onClick={() => onDeleteUser(user.id)}>Delete</button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            );
+        }
+
+        function App() {
+            const [users, setUsers] = useState([
+                { id: 1, firstName: 'John', lastName: 'Doe', email: 'john@gmail.com' },
+                { id: 2, firstName: 'Dhiraj', lastName: 'Ray', email: 'only2dhir@gmail.com' }
+            ]);
+
+            const addUser = (newUser) => {
+                const id = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1;
+                setUsers([...users, { ...newUser, id }]);
+            };
+
+            const deleteUser = (id) => {
+                setUsers(users.filter(user => user.id !== id));
+            };
+
+            return (
+                <div className="app">
+                    <h1>User Management</h1>
+                    <UserForm onAddUser={addUser} />
+                    <UserList users={users} onDeleteUser={deleteUser} />
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
