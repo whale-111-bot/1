@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & User Management</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+        
+        /* Login Page */
+        .login-box { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 350px; text-align: center; }
+        .login-box h1 { color: #333; margin-bottom: 5px; font-size: 28px; }
+        .login-box p { color: #999; margin-bottom: 30px; font-size: 14px; }
+        .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: none; border-bottom: 1px solid #ddd; font-size: 14px; outline: none; }
+        .login-box input:focus { border-bottom-color: #e91e63; }
+        .login-box button { width: 100%; padding: 12px; background: white; color: #e91e63; border: 2px solid #e91e63; border-radius: 4px; cursor: pointer; font-size: 14px; margin-top: 10px; }
+        .login-box button:hover { background: #e91e63; color: white; }
+        .login-box .error { color: #e91e63; margin-bottom: 15px; font-size: 13px; }
+        
+        /* User Management Page */
+        .app { max-width: 900px; margin: 20px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .app-header h1 { color: #333; }
+        .logout-btn { background: #e91e63; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-left: 10px; }
+        .user-form { display: flex; gap: 10px; margin-bottom: 30px; align-items: center; }
+        .user-form input { padding: 10px; border: 1px solid #ddd; border-radius: 4px; flex: 1; font-size: 14px; }
+        .btn-add { background: #e91e63; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; }
+        .user-list h2 { margin-bottom: 15px; color: #333; font-size: 28px; }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: #f8f9fa; }
+        th { text-align: left; padding: 12px; font-weight: bold; color: #333; }
+        td { padding: 12px; border-bottom: 1px solid #eee; }
+        .btn-delete { background: #e91e63; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script>
+        // User accounts data
+        const ACCOUNTS = [
+            { email: 'admin@example.com', password: 'admin123', name: 'Admin' },
+            { email: 'user@example.com', password: 'user123', name: 'User' },
+            { email: 'wang@vgtu.com', password: '123456', name: 'Wang Dongshen' }
+        ];
+
+        // State management
+        let currentUser = null;
+        let users = [
+            { id: 1, firstName: 'John', lastName: 'Doe', email: 'john@gmail.com' },
+            { id: 2, firstName: 'Dhiraj', lastName: 'Ray', email: 'only2dhir@gmail.com' }
+        ];
+
+        // Render login page
+        function renderLogin() {
+            const root = document.getElementById('root');
+            root.innerHTML = `
+                <div class="login-box">
+                    <h1>Welcome</h1>
+                    <p>Login to get started!</p>
+                    <div id="error-msg" class="error"></div>
+                    <form id="login-form">
+                        <input type="email" id="email" placeholder="Email" required>
+                        <input type="password" id="password" placeholder="Password" required>
+                        <button type="submit">Login</button>
+                    </form>
+                </div>
+            `;
+
+            document.getElementById('login-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                const user = ACCOUNTS.find(u => u.email === email && u.password === password);
+                
+                if (user) {
+                    currentUser = user;
+                    renderUsers();
+                } else {
+                    document.getElementById('error-msg').textContent = 'Invalid email or password';
+                }
+            });
+        }
+
+        // Render user management page
+        function renderUsers() {
+            const root = document.getElementById('root');
+            
+            let tableRows = users.map(user => `
+                <tr>
+                    <td>${user.id}</td>
+                    <td>${user.firstName}</td>
+                    <td>${user.lastName}</td>
+                    <td>${user.email}</td>
+                    <td><button class="btn-delete" onclick="deleteUser(${user.id})">Delete</button></td>
+                </tr>
+            `).join('');
+
+            root.innerHTML = `
+                <div class="app">
+                    <div class="app-header">
+                        <h1>User Management</h1>
+                        <div>
+                            <span>Welcome, ${currentUser.name}!</span>
+                            <button class="logout-btn" onclick="logout()">Logout</button>
+                        </div>
+                    </div>
+                    <form id="add-form" class="user-form">
+                        <button type="submit" class="btn-add">Add User</button>
+                        <input type="text" id="firstName" placeholder="FirstName" required>
+                        <input type="text" id="lastName" placeholder="LastName" required>
+                        <input type="email" id="newEmail" placeholder="Email" required>
+                    </form>
+                    <div class="user-list">
+                        <h2>Users</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>FirstName</th>
+                                    <th>LastName</th>
+                                    <th>Email</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${tableRows}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('add-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const firstName = document.getElementById('firstName').value;
+                const lastName = document.getElementById('lastName').value;
+                const email = document.getElementById('newEmail').value;
+                
+                const id = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1;
+                users.push({ id, firstName, lastName, email });
+                
+                renderUsers();
+            });
+        }
+
+        // Delete user function
+        function deleteUser(id) {
+            users = users.filter(user => user.id !== id);
+            renderUsers();
+        }
+
+        // Logout function
+        function logout() {
+            currentUser = null;
+            renderLogin();
+        }
+
+        // Start the app
+        renderLogin();
+    </script>
+</body>
+</html>
